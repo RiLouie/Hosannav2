@@ -4,6 +4,8 @@
 
 package com.mycompany.hossanav2;
 
+import com.mycompany.ui.Main;
+
 /**
  *
  * @author admin

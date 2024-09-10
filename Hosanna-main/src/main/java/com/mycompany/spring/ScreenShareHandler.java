@@ -4,7 +4,6 @@
  */
 package com.mycompany.spring;
 
-import org.bytedeco.javacv.Java2DFrameConverter;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
@@ -15,18 +14,13 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ScreenShareHandler extends BinaryWebSocketHandler {
     private volatile boolean running = true;
     private Rectangle windowBounds;
-    
-    public ScreenShareHandler(Rectangle windowBounds) {
-        this.windowBounds = windowBounds;
-    }
-
-    ScreenShareHandler() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+   
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -43,10 +37,11 @@ public class ScreenShareHandler extends BinaryWebSocketHandler {
     private void captureAndSendScreen(WebSocketSession session) {
         try {
             Robot robot = new Robot();
-//            Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
+            Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
 
             while (running) {
-                BufferedImage windowCapture = robot.createScreenCapture(windowBounds);
+                //BufferedImage windowCapture = robot.createScreenCapture(windowBounds);
+                BufferedImage windowCapture = robot.createScreenCapture(screenRect);
                 byte[] imageInByte;
                 try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                     ImageIO.write(windowCapture, "jpg", baos);
@@ -61,7 +56,7 @@ public class ScreenShareHandler extends BinaryWebSocketHandler {
                 Thread.sleep(100); // Adjust the frame rate as needed
             }
         } catch (AWTException | IOException | InterruptedException e) {
-            e.printStackTrace();
         }
     }
+
 }
