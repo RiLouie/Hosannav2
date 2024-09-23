@@ -20,8 +20,18 @@ import org.springframework.stereotype.Component;
 public class ScreenShareHandler extends BinaryWebSocketHandler {
     private volatile boolean running = true;
     private Rectangle windowBounds;
-   
+    
+    private Point capturePoint;
+    private Dimension captureSize;
 
+    // Default constructor (no arguments)
+    public ScreenShareHandler(Point capturePoint, Dimension captureSize) {
+        this.capturePoint = capturePoint;
+        this.captureSize = captureSize;
+    }
+  
+ 
+   
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
@@ -37,7 +47,7 @@ public class ScreenShareHandler extends BinaryWebSocketHandler {
     private void captureAndSendScreen(WebSocketSession session) {
         try {
             Robot robot = new Robot();
-            Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
+            Rectangle screenRect = new Rectangle(capturePoint, captureSize);
 
             while (running) {
                 //BufferedImage windowCapture = robot.createScreenCapture(windowBounds);
@@ -57,6 +67,25 @@ public class ScreenShareHandler extends BinaryWebSocketHandler {
             }
         } catch (AWTException | IOException | InterruptedException e) {
         }
+    }
+
+    
+     // Getter and Setter for capture point (top-left corner)
+    public Point getCapturePoint() {
+        return capturePoint;
+    }
+
+    public void setCapturePoint(Point capturePoint) {
+        this.capturePoint = capturePoint;
+    }
+
+    // Getter and Setter for capture size (width and height)
+    public Dimension getCaptureSize() {
+        return captureSize;
+    }
+
+    public void setCaptureSize(Dimension captureSize) {
+        this.captureSize = captureSize;
     }
 
 }

@@ -6,7 +6,18 @@ package com.mycompany.ui;
 
 import com.mycompany.spring.ScreenShareApplication;
 import com.mycompany.spring.ScreenShareHandler;
+import com.mycompany.spring.WebSocketConfig;
+import java.awt.Dimension;
+import java.awt.DisplayMode;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Point;
 import java.awt.Rectangle;
+import static java.lang.Integer.parseInt;
+import javax.swing.DefaultListModel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -37,10 +48,24 @@ public class Main extends javax.swing.JFrame {
     
     // windowBounds = new Rectangle(100, 100, 800, 600); // Example bounds, adjust as needed
     
-    private void startScreenShare() {
-        context = SpringApplication.run(ScreenShareApplication.class);
+    private void startScreenShare(int xPos,int yPos) {
+       
+
+        
+        Point capturePoint = new Point(xPos, yPos);  // Example: Start capturing from (200, 150)
+        Dimension captureSize = new Dimension(1024, 768);  // Example: Capture a 1024x768 region
+
+      context = SpringApplication.run(ScreenShareApplication.class);
+
+        // Access the ScreenShareHandler bean
         ScreenShareHandler handler = context.getBean(ScreenShareHandler.class);
-       // handler.setWindowBounds(windowBounds);
+
+        // Dynamically set the capture point and size
+        handler.setCapturePoint(capturePoint);
+        handler.setCaptureSize(captureSize);
+
+
+        
         BtnStart.setEnabled(false);
         BtnStop.setEnabled(true);
     }
@@ -96,6 +121,12 @@ public class Main extends javax.swing.JFrame {
         jPanel4 = new javax.swing.JPanel();
         BtnStart = new javax.swing.JButton();
         BtnStop = new javax.swing.JButton();
+        jPanel10 = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        listDisplay = new javax.swing.JList<>();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        jTextArea2 = new javax.swing.JTextArea();
+        jButton12 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem2 = new javax.swing.JMenuItem();
@@ -453,12 +484,63 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
+        listDisplay.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        listDisplay.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                listDisplayMouseClicked(evt);
+            }
+        });
+        jScrollPane4.setViewportView(listDisplay);
+
+        jTextArea2.setColumns(20);
+        jTextArea2.setRows(5);
+        jScrollPane7.setViewportView(jTextArea2);
+
+        jButton12.setText("Get Display");
+        jButton12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton12ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGap(57, 57, 57)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton12)
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 414, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(59, 59, 59)
+                        .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 433, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(223, Short.MAX_VALUE))
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton12)
+                .addGap(29, 29, 29)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane7)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE))
+                .addContainerGap(262, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addContainerGap(1419, Short.MAX_VALUE)
+                .addGap(48, 48, 48)
+                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 185, Short.MAX_VALUE)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(BtnStop)
                     .addComponent(BtnStart))
@@ -470,8 +552,12 @@ public class Main extends javax.swing.JFrame {
                 .addGap(22, 22, 22)
                 .addComponent(BtnStart)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(BtnStop)
-                .addContainerGap(568, Short.MAX_VALUE))
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(BtnStop))
+                .addContainerGap(33, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Windows", jPanel4);
@@ -526,7 +612,7 @@ public class Main extends javax.swing.JFrame {
 
     private void BtnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnStartActionPerformed
         // TODO add your handling code here:
-        startScreenShare();
+        startScreenShare(0,0);
     }//GEN-LAST:event_BtnStartActionPerformed
 
     private void BtnStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnStopActionPerformed
@@ -574,6 +660,69 @@ public class Main extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton11ActionPerformed
 
+    private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
+        // TODO add your handling code here:
+        DefaultListModel dm =  new DefaultListModel();
+       
+        
+        listDisplay.setModel(dm);
+        
+        
+         // Get the number of displays
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] screens = ge.getScreenDevices();
+        int numberOfDisplays = screens.length;
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("Number of Displays: ").append(numberOfDisplays).append("\n\n");
+
+        // Iterate through each screen and display its details
+        for (int i = 0; i < screens.length; i++) {
+            GraphicsDevice screen = screens[i];
+            DisplayMode displayMode = screen.getDisplayMode();
+            int width = displayMode.getWidth();
+            int height = displayMode.getHeight();
+            int refreshRate = displayMode.getRefreshRate();
+            int bitDepth = displayMode.getBitDepth();
+
+            // Get the screen bounds (position and size)
+            GraphicsConfiguration gc = screen.getDefaultConfiguration();
+            Rectangle bounds = gc.getBounds();
+            int xPos = bounds.x;
+            int yPos = bounds.y;
+
+            // Append the details to the text area
+            sb.append("Display ").append(i + 1).append(":\n")
+              .append("  Resolution: ").append(width).append(" x ").append(height).append("\n")
+              .append("  Position: (").append(xPos).append(", ").append(yPos).append(")\n")
+              .append("  Refresh Rate: ").append(refreshRate == DisplayMode.REFRESH_RATE_UNKNOWN ? "Unknown" : refreshRate + " Hz").append("\n")
+              .append("  Bit Depth: ").append(bitDepth).append(" bits\n\n");
+            
+            
+            String displayNum = "Display("+ xPos +","+yPos+")";
+             dm.addElement(displayNum);
+             
+             
+        }
+
+        // Set the text area content
+        jTextArea2.setText(sb.toString());
+        
+        
+        
+    }//GEN-LAST:event_jButton12ActionPerformed
+
+    private void listDisplayMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listDisplayMouseClicked
+        // TODO add your handling code here:
+        stopScreenShare();
+        String selected = listDisplay.getSelectedValue().replace("(", "").replace(")", "").replace("Display", "");
+        String[] points =selected.split(",");  
+        int x=  parseInt(points[0]);
+        int y  = parseInt(points[1]);
+        startScreenShare(x,y);
+      
+    }//GEN-LAST:event_listDisplayMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -615,6 +764,7 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
+    private javax.swing.JButton jButton12;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
@@ -635,6 +785,7 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -646,14 +797,18 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
+    private javax.swing.JList<String> listDisplay;
     // End of variables declaration//GEN-END:variables
 
 
