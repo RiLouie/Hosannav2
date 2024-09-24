@@ -20,6 +20,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.web.socket.WebSocketSession;
 
 /**
  *
@@ -48,14 +49,14 @@ public class Main extends javax.swing.JFrame {
     
     // windowBounds = new Rectangle(100, 100, 800, 600); // Example bounds, adjust as needed
     
-    private void startScreenShare(int xPos,int yPos) {
+    private void startScreenShare(int xPos,int yPos,int width ,int height) {
        
 
         
         Point capturePoint = new Point(xPos, yPos);  // Example: Start capturing from (200, 150)
-        Dimension captureSize = new Dimension(1024, 768);  // Example: Capture a 1024x768 region
-
-      context = SpringApplication.run(ScreenShareApplication.class);
+        Dimension captureSize = new Dimension(width, height);  // Example: Capture a 1024x768 region
+    
+        context = SpringApplication.run(ScreenShareApplication.class);
 
         // Access the ScreenShareHandler bean
         ScreenShareHandler handler = context.getBean(ScreenShareHandler.class);
@@ -612,7 +613,7 @@ public class Main extends javax.swing.JFrame {
 
     private void BtnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnStartActionPerformed
         // TODO add your handling code here:
-        startScreenShare(0,0);
+        startScreenShare(0,0,1920,1080);
     }//GEN-LAST:event_BtnStartActionPerformed
 
     private void BtnStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtnStopActionPerformed
@@ -699,7 +700,7 @@ public class Main extends javax.swing.JFrame {
               .append("  Bit Depth: ").append(bitDepth).append(" bits\n\n");
             
             
-            String displayNum = "Display("+ xPos +","+yPos+")";
+            String displayNum = "Display("+ xPos +","+yPos+"),("+width+"," + height + ")";
              dm.addElement(displayNum);
              
              
@@ -719,7 +720,9 @@ public class Main extends javax.swing.JFrame {
         String[] points =selected.split(",");  
         int x=  parseInt(points[0]);
         int y  = parseInt(points[1]);
-        startScreenShare(x,y);
+        int width = parseInt(points[2]);
+        int height = parseInt(points[3]);
+        startScreenShare(x,y,width,height);
       
     }//GEN-LAST:event_listDisplayMouseClicked
 

@@ -24,8 +24,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Bean
     public ScreenShareHandler screenShareHandler() {
         // Supply custom Point and Dimension for the capture area
-        Point customCapturePoint = new Point(100, 100);  // Example: Capture starts at (100, 100)
-        Dimension customCaptureSize = new Dimension(1024, 768);  // Example: 1024x768 capture size
+        Point customCapturePoint = new Point(0, 0);  // Example: Capture starts at (100, 100)
+        Dimension customCaptureSize = new Dimension(1080, 768);  // Example: 1024x768 capture size
 
         // Create and return ScreenShareHandler bean with supplied Point and Dimension
         return new ScreenShareHandler(customCapturePoint, customCaptureSize);

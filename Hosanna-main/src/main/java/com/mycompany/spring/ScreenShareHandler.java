@@ -14,12 +14,21 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class ScreenShareHandler extends BinaryWebSocketHandler {
     private volatile boolean running = true;
     private Rectangle windowBounds;
+    
+    private static final Logger logger = LoggerFactory.getLogger(ScreenShareHandler.class);
+   
+    private ScheduledExecutorService scheduler;
     
     private Point capturePoint;
     private Dimension captureSize;
@@ -28,6 +37,7 @@ public class ScreenShareHandler extends BinaryWebSocketHandler {
     public ScreenShareHandler(Point capturePoint, Dimension captureSize) {
         this.capturePoint = capturePoint;
         this.captureSize = captureSize;
+         startLogger();
     }
   
  
@@ -36,12 +46,14 @@ public class ScreenShareHandler extends BinaryWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
         new Thread(() -> captureAndSendScreen(session)).start();
+       
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         super.afterConnectionClosed(session, status);
         running = false;
+        stopLogger();
     }
 
     private void captureAndSendScreen(WebSocketSession session) {
@@ -68,7 +80,21 @@ public class ScreenShareHandler extends BinaryWebSocketHandler {
         } catch (AWTException | IOException | InterruptedException e) {
         }
     }
+    
+     private void startLogger() {
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(() -> {
+            logger.info("WebSocket Running Status: " + running);
+        }, 0, 5, TimeUnit.SECONDS); // Log every 5 seconds
+    }
 
+     
+       private void stopLogger() {
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdown();
+            logger.info("Logging scheduler stopped.");
+        }
+    }
     
      // Getter and Setter for capture point (top-left corner)
     public Point getCapturePoint() {
