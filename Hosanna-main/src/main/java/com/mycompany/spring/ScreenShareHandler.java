@@ -4,7 +4,6 @@
  */
 package com.mycompany.spring;
 
-import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
@@ -14,14 +13,16 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.socket.WebSocketMessage;
 
-@Component
+@Service
 public class ScreenShareHandler extends BinaryWebSocketHandler {
     private volatile boolean running = true;
     private Rectangle windowBounds;
@@ -58,25 +59,40 @@ public class ScreenShareHandler extends BinaryWebSocketHandler {
 
     private void captureAndSendScreen(WebSocketSession session) {
         try {
+//            Robot robot = new Robot();
+//            Rectangle screenRect = new Rectangle(capturePoint, captureSize);
+//
+//            while (running) {
+//                //BufferedImage windowCapture = robot.createScreenCapture(windowBounds);
+//                BufferedImage windowCapture = robot.createScreenCapture(screenRect);
+//                byte[] imageInByte;
+//                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+//                    ImageIO.write(windowCapture, "jpg", baos);
+//                    baos.flush();
+//                    imageInByte = baos.toByteArray();
+//                }
+//
+//                if (session.isOpen()) {
+//                    session.sendMessage(new BinaryMessage(imageInByte));
+//                }
+//
+//                Thread.sleep(100); // Adjust the frame rate as needed
+//            }
+
             Robot robot = new Robot();
-            Rectangle screenRect = new Rectangle(capturePoint, captureSize);
+                        Rectangle screenRect = new Rectangle(capturePoint, captureSize);
 
-            while (running) {
-                //BufferedImage windowCapture = robot.createScreenCapture(windowBounds);
-                BufferedImage windowCapture = robot.createScreenCapture(screenRect);
-                byte[] imageInByte;
-                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                    ImageIO.write(windowCapture, "jpg", baos);
-                    baos.flush();
-                    imageInByte = baos.toByteArray();
-                }
+                        while (running && session.isOpen()) {
+                            BufferedImage capture = robot.createScreenCapture(screenRect);
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            ImageIO.write(capture, "jpg", baos);
+                            baos.flush();
 
-                if (session.isOpen()) {
-                    session.sendMessage(new BinaryMessage(imageInByte));
-                }
+                            ByteBuffer buffer = ByteBuffer.wrap(baos.toByteArray());
+                            session.sendMessage((WebSocketMessage<?>) buffer);
 
-                Thread.sleep(100); // Adjust the frame rate as needed
-            }
+                            Thread.sleep(100); // 10 FPS
+                        }
         } catch (AWTException | IOException | InterruptedException e) {
         }
     }
